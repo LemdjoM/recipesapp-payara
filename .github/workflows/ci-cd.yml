@@ -51,22 +51,21 @@ jobs:
           PAYARA_USER: ${{ secrets.PAYARA_USER }}
           PAYARA_PASSWORD: ${{ secrets.PAYARA_PASSWORD }}
         run: |
-          # Trouver le premier fichier .war dans target/
+          # Trouver le fichier WAR
           WAR_FILE=$(ls target/*.war | head -n 1)
-
           if [ -z "$WAR_FILE" ]; then
             echo "No WAR file found in target/"
             exit 1
           fi
 
-          # Extraire seulement le nom du fichier
+          # Extraire le nom du fichier WAR
           WAR_NAME=$(basename "$WAR_FILE")
 
-          echo "Deploying $WAR_FILE as $WAR_NAME to Payara at 
-$PAYARA_HOST"
+          # Construire l'URL complète du déploiement
+          DEPLOY_URL="http://$PAYARA_USER:$PAYARA_PASSWORD@$PAYARA_HOST:4848/management/domain/applications/deploy?name=$WAR_NAME"
+
+          echo "Deploying $WAR_FILE as $WAR_NAME to Payara at $PAYARA_HOST"
+          echo "Deploy URL: $DEPLOY_URL"
 
           # Déploiement via l'API HTTP Admin de Payara
-          curl --fail --upload-file "$WAR_FILE" \
-            
-"http://$PAYARA_USER:$PAYARA_PASSWORD@$PAYARA_HOST:4848/management/domain/applications/deploy?name=$WAR_NAME"
-
+          curl --fail --upload-file "$WAR_FILE" "$DEPLOY_URL"
