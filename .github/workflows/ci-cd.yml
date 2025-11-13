@@ -1,24 +1,3 @@
-Skip to content
-Navigation Menu
-LemdjoM
-recipesapp-payara
-
-Type / to search
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security
-Insights
-Settings
-CI/CD Java + Payara
-Add parent pom for multi-module build #20
-Jobs
-Run details
-Workflow file for this run
-.github/workflows/ci-cd.yml at eaeb28d
 name: CI/CD Java + Payara
 
 on:
