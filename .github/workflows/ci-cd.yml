@@ -11,10 +11,8 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -29,11 +27,22 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
+
       - name: Build with Maven
         run: mvn clean install -B
 
+      - name: Debug RecipesAppWeb target
+        run: ls -al RecipesAppWeb/target || echo "Directory does not exist"
+
       - name: Run tests
         run: mvn test
+
+      - name: Upload WAR
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: RecipesAppWeb-WAR
+          path: RecipesAppWeb/target/RecipesAppWeb-*.war
 
   deploy:
     runs-on: ubuntu-latest
@@ -41,16 +50,19 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+
+      - name: Download WAR
+        uses: actions/download-artifact@v3
+        with:
+          name: RecipesAppWeb-WAR
+          path: ./RecipesAppWeb/target
 
       - name: Deploy WAR to Payara
         env:
           PAYARA_HOST: ${{ secrets.PAYARA_HOST }}
           PAYARA_USER: ${{ secrets.PAYARA_USER }}
           PAYARA_PASSWORD: ${{ secrets.PAYARA_PASSWORD }}
-        run: |
-      - name: Trouver le fichier WAR
         run: |
           ls -al RecipesAppWeb/target
           WAR_FILE=$(ls RecipesAppWeb/target/*.war | head -n 1)
@@ -59,12 +71,7 @@ jobs:
             exit 1
           fi
           echo "WAR_FILE=$WAR_FILE" >> $GITHUB_ENV
-
-          # Extraire le nom du fichier WAR
           WAR_NAME=$(basename "$WAR_FILE")
-          # Construire l'URL complète du déploiement
           DEPLOY_URL="http://$PAYARA_USER:$PAYARA_PASSWORD@$PAYARA_HOST:4848/management/domain/applications/deploy?name=$WAR_NAME"
           echo "Deploying $WAR_FILE as $WAR_NAME to Payara at $PAYARA_HOST"
-          echo "Deploy URL: $DEPLOY_URL"
-          # Déploiement via l'API HTTP Admin de Payara
-          curl --fail --upload-file "$WAR_FILE" "$DEPLOY_URL" 
+          curl --fail --upload-file "$WAR_FILE" "$DEPLOY_URL"
