@@ -1,0 +1,18 @@
+# docker-compose.yml
+services:
+  payara:
+    image: payara/server-full:6.2024.10-jdk17
+    container_name: recipesApp-payara
+    ports:
+      - "8081:8080"   # HTTP  → http://localhost:8080/RecipesApp/api/…
+      - "4849:4848"   # Admin → http://localhost:4848
+      - "8181:8181"   # HTTPS
+      - "9009:9009"   #debug JDWP
+    volumes:
+      #Directly mounting settings to the server config -> needs a restart
+      - ./docker/pre-boot-commands.asadmin:/opt/payara/config/pre-boot-commands.asadmin:ro
+      #auto deploy (maps local target artefact to container) - You must have StudyBuddyService and StudyBuddyWebapp projects at the same file system level
+      - ./target/RecipesAppService-1.0-SNAPSHOT.war:/opt/payara/appserver/glassfish/domains/domain1/autodeploy/RecipesAppService-1.0-SNAPSHOT.war
+      - ../RecipesAppWeb/target/RecipesAppWeb-1.0-SNAPSHOT.war:/opt/payara/appserver/glassfish/domains/domain1/autodeploy/RecipesAppWeb-1.0-SNAPSHOT.war
+    environment:
+      - PAYARA_ARGS=--debug

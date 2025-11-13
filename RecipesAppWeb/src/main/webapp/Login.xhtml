@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+<h:head>
+  <title>Login - RecipesApp</title>
+  <!-- Inclusion du CSS -->
+  <h:outputStylesheet library="css" name="styles.css" />
+</h:head>
+
+<h:body>
+  <div class="login-container">
+    <h2>Connexion</h2>
+    <h:form>
+      <div class="form-field">
+        <label for="username">Nom d'utilisateur :</label>
+        <h:inputText id="username" value="#{loginBean.username}" required="true"
+                     requiredMessage="Nom d'utilisateur requis" />
+      </div>
+
+      <div class="form-field">
+        <label for="password">Mot de passe :</label>
+        <h:inputSecret id="password" value="#{loginBean.password}" required="true"
+                       requiredMessage="Mot de passe requis" />
+      </div>
+
+      <h:commandButton value="Se connecter" action="#{loginBean.login}" styleClass="login-btn" />
+
+      <h:messages styleClass="error-message" globalOnly="true"/>
+    </h:form>
+
+    <div class="footer-text">
+      © 2025 RecipesApp | Tous droits réservés.
+    </div>
+  </div>
+</h:body>
+</html>
