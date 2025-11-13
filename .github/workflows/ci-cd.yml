@@ -59,7 +59,7 @@ jobs:
           path: ./RecipesAppWeb/target
 
       - name: Setup SSH Agent
-      - uses: webfactory/ssh-agent@v0.9.1
+        uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
