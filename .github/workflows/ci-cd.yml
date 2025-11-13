@@ -59,11 +59,14 @@ jobs:
             exit 1
           fi
 
-          echo "Deploying $WAR_FILE to Payara at $PAYARA_HOST"
+          # Extraire seulement le nom du fichier
+          WAR_NAME=$(basename "$WAR_FILE")
+
+          echo "Deploying $WAR_FILE as $WAR_NAME to Payara at 
+$PAYARA_HOST"
 
           # Déploiement via l'API HTTP Admin de Payara
           curl --fail --upload-file "$WAR_FILE" \
             
-http://$PAYARA_USER:$PAYARA_PASSWORD@$PAYARA_HOST:4848/management/domain/applications/deploy?name=$(basename 
-$WAR_FILE)
+"http://$PAYARA_USER:$PAYARA_PASSWORD@$PAYARA_HOST:4848/management/domain/applications/deploy?name=$WAR_NAME"
 
