@@ -83,4 +83,4 @@ jobs:
             WAR_FILE_NAME=$(basename /tmp/*.war)
             echo "Deploying $WAR_FILE_NAME to Payara..."
             asadmin --user admin --passwordfile=/opt/payara/password.txt deploy /tmp/$WAR_FILE_NAME
-EOF
+
