@@ -52,11 +52,12 @@ jobs:
           PAYARA_PASSWORD: ${{ secrets.PAYARA_PASSWORD }}
         run: |
           # Trouver le fichier WAR
-          WAR_FILE=$(ls target/*.war | head -n 1)
+          WAR_FILE=$(ls RecipesAppWeb/target/*.war | head -n 1)
           if [ -z "$WAR_FILE" ]; then
-            echo "No WAR file found in target/"
+            echo "No WAR file found in RecipesAppWeb/target/"
             exit 1
           fi
+
 
           # Extraire le nom du fichier WAR
           WAR_NAME=$(basename "$WAR_FILE")
