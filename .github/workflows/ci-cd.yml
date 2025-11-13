@@ -72,6 +72,6 @@ jobs:
           fi
           echo "WAR_FILE=$WAR_FILE" >> $GITHUB_ENV
           WAR_NAME=$(basename "$WAR_FILE")
-          DEPLOY_URL="http://$PAYARA_USER:$PAYARA_PASSWORD@$PAYARA_HOST:4848/management/domain/applications/deploy?name=$WAR_NAME"
+          DEPLOY_URL="http://$PAYARA_USER:$PAYARA_PASSWORD@$PAYARA_HOST:4849/management/domain/applications/deploy?name=$WAR_NAME"
           echo "Deploying $WAR_FILE as $WAR_NAME to Payara at $PAYARA_HOST"
           curl --fail --upload-file "$WAR_FILE" "$DEPLOY_URL"
