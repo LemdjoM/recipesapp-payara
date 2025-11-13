@@ -11,6 +11,7 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -39,6 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-test
     if: github.ref == 'refs/heads/main'
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -49,13 +51,17 @@ jobs:
           PAYARA_USER: ${{ secrets.PAYARA_USER }}
           PAYARA_PASSWORD: ${{ secrets.PAYARA_PASSWORD }}
         run: |
+          # Trouver le premier fichier .war dans target/
           WAR_FILE=$(ls target/*.war | head -n 1)
+
           if [ -z "$WAR_FILE" ]; then
             echo "No WAR file found in target/"
             exit 1
           fi
 
           echo "Deploying $WAR_FILE to Payara at $PAYARA_HOST"
+
+          # Déploiement via l'API HTTP Admin de Payara
           curl --fail --upload-file "$WAR_FILE" \
             
 http://$PAYARA_USER:$PAYARA_PASSWORD@$PAYARA_HOST:4848/management/domain/applications/deploy?name=$(basename 
