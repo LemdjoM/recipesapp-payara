@@ -58,29 +58,23 @@ jobs:
           name: RecipesAppWeb-WAR
           path: ./RecipesAppWeb/target
 
-      - name: Deploy WAR via SSH
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Deploy WAR to Payara
         env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_KEY: ${{ secrets.SSH_KEY }} # Clé privée
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          PAYARA_DEPLOY_DIR: /opt/payara5/glassfish/domains/domain1/autodeploy
         run: |
           WAR_FILE=$(ls RecipesAppWeb/target/*.war | head -n 1)
           if [ -z "$WAR_FILE" ]; then
             echo "No WAR file found!"
             exit 1
           fi
-          echo "Deploying $WAR_FILE to $SSH_HOST"
-
-          # Écrire la clé privée dans un fichier temporaire
-          echo "$SSH_KEY" > private_key.pem
-          chmod 600 private_key.pem
-
-          # Copier le WAR sur le serveur
-          scp -i private_key.pem "$WAR_FILE" "$SSH_USER@$SSH_HOST:/tmp/"
-
-          # Se connecter au serveur et déployer via asadmin
-          ssh -i private_key.pem "$SSH_USER@$SSH_HOST" << 'EOF'
-            WAR_FILE_NAME=$(basename /tmp/*.war)
-            echo "Deploying $WAR_FILE_NAME to Payara..."
-            asadmin --user admin --passwordfile=/opt/payara/password.txt deploy /tmp/$WAR_FILE_NAME
+          echo "Deploying $WAR_FILE to $SSH_USER@$SSH_HOST:$PAYARA_DEPLOY_DIR"
+          scp "$WAR_FILE" "$SSH_USER@$SSH_HOST:$PAYARA_DEPLOY_DIR/"
+          echo "WAR deployed successfully!"
 
