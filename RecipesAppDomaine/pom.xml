@@ -11,6 +11,7 @@
 
     <groupId>ch.unil.doplab</groupId>
     <artifactId>RecipesAppDomaine</artifactId>
+    <packaging>jar</packaging>
     <!--version>1.0-SNAPSHOT</version-->
 
     <properties>
