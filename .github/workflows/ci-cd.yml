@@ -50,12 +50,16 @@ jobs:
           PAYARA_USER: ${{ secrets.PAYARA_USER }}
           PAYARA_PASSWORD: ${{ secrets.PAYARA_PASSWORD }}
         run: |
-          # Trouver le fichier WAR
+      - name: Trouver le fichier WAR
+        run: |
+          ls -al RecipesAppWeb/target
           WAR_FILE=$(ls RecipesAppWeb/target/*.war | head -n 1)
           if [ -z "$WAR_FILE" ]; then
             echo "No WAR file found in RecipesAppWeb/target/"
             exit 1
           fi
+          echo "WAR_FILE=$WAR_FILE" >> $GITHUB_ENV
+
           # Extraire le nom du fichier WAR
           WAR_NAME=$(basename "$WAR_FILE")
           # Construire l'URL complète du déploiement
