@@ -70,11 +70,11 @@
             <version>5.10.2</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
+        <!-- dependency>
             <groupId>ch.unil.doplab.studybuddy</groupId>
             <artifactId>StudyBuddyDomain</artifactId>
             <version>1.0-SNAPSHOT</version>
-        </dependency>
+        </dependency -->
 
     </dependencies>
     <!-- CONFIGURATION DE COMPILATION -->
