@@ -84,5 +84,4 @@ jobs:
           echo "Deploying $WAR_FILE as $WAR_NAME to Payara at $PAYARA_HOST"
           echo "Deploy URL: $DEPLOY_URL"
           # Déploiement via l'API HTTP Admin de Payara
-          curl --fail --upload-file "$WAR_FILE" "$DEPLOY_URL"
-Add parent pom for multi-module build · LemdjoM/recipesapp-payara@eaeb28d  
+          curl --fail --upload-file "$WAR_FILE" "$DEPLOY_URL" 
