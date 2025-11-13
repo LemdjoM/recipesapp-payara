@@ -52,26 +52,35 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Download WAR
-        uses: actions/download-artifact@v4
+      - name: Download WAR artifact
+        uses: actions/download-artifact@v3
         with:
           name: RecipesAppWeb-WAR
           path: ./RecipesAppWeb/target
 
-      - name: Deploy WAR to Payara
+      - name: Deploy WAR via SSH
         env:
-          PAYARA_HOST: ${{ secrets.PAYARA_HOST }}
-          PAYARA_USER: ${{ secrets.PAYARA_USER }}
-          PAYARA_PASSWORD: ${{ secrets.PAYARA_PASSWORD }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }} # Clé privée
         run: |
-          ls -al RecipesAppWeb/target
           WAR_FILE=$(ls RecipesAppWeb/target/*.war | head -n 1)
           if [ -z "$WAR_FILE" ]; then
-            echo "No WAR file found in RecipesAppWeb/target/"
+            echo "No WAR file found!"
             exit 1
           fi
-          echo "WAR_FILE=$WAR_FILE" >> $GITHUB_ENV
-          WAR_NAME=$(basename "$WAR_FILE")
-          DEPLOY_URL="http://$PAYARA_USER:$PAYARA_PASSWORD@$PAYARA_HOST:4849/management/domain/applications/deploy?name=$WAR_NAME"
-          echo "Deploying $WAR_FILE as $WAR_NAME to Payara at $PAYARA_HOST"
-          curl --fail --upload-file "$WAR_FILE" "$DEPLOY_URL"
+          echo "Deploying $WAR_FILE to $SSH_HOST"
+
+          # Écrire la clé privée dans un fichier temporaire
+          echo "$SSH_KEY" > private_key.pem
+          chmod 600 private_key.pem
+
+          # Copier le WAR sur le serveur
+          scp -i private_key.pem "$WAR_FILE" "$SSH_USER@$SSH_HOST:/tmp/"
+
+          # Se connecter au serveur et déployer via asadmin
+          ssh -i private_key.pem "$SSH_USER@$SSH_HOST" << 'EOF'
+            WAR_FILE_NAME=$(basename /tmp/*.war)
+            echo "Deploying $WAR_FILE_NAME to Payara..."
+            asadmin --user admin --passwordfile=/opt/payara/password.txt deploy /tmp/$WAR_FILE_NAME
+EOF
