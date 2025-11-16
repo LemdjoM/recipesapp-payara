@@ -1,4 +1,4 @@
-name: CI/CD Java + Payara (Self-Hosted)
+name: CI/CD Java + Payara
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: self-hosted   # <-- utilise ton runner local
+    runs-on: self-hosted  # utilise ton runner local
     steps:
       - uses: actions/checkout@v4
 
@@ -21,7 +21,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Cache Maven packages
-        uses: actions/cache@v4
+        uses: actions/cache@v3
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -29,42 +29,22 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build with Maven
-        run: mvn clean install -B -pl RecipesAppWeb -am
+        run: mvn clean install -B
 
       - name: Debug RecipesAppWeb target
         run: ls -al RecipesAppWeb/target || echo "Directory does not exist"
 
-      - name: Debug project structure
-        run: |
-          pwd
-          ls -R
-
       - name: Run tests
         run: mvn test
 
-      - name: Upload WAR (optional, local runner can skip this)
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: RecipesAppWeb-WAR
-          path: RecipesAppWeb/target/RecipesAppWeb-*.war
-
-  deploy:
-    runs-on: self-hosted
-    needs: build-and-test
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Deploy WAR locally to Payara
+      - name: Copy WAR to Payara autodeploy
         run: |
-          WAR_FILE=$(find RecipesAppWeb/target -name "*.war" | head -n 1)
+          WAR_FILE=$(ls RecipesAppWeb/target/RecipesAppWeb-*.war | head -n 1)
           if [ -z "$WAR_FILE" ]; then
             echo "No WAR file found!"
             exit 1
           fi
-          PAYARA_DEPLOY_DIR="/opt/payara5/glassfish/domains/domain1/autodeploy"
+          PAYARA_DEPLOY_DIR=/opt/payara5/glassfish/domains/domain1/autodeploy
           echo "Deploying $WAR_FILE to $PAYARA_DEPLOY_DIR"
           cp "$WAR_FILE" "$PAYARA_DEPLOY_DIR/"
           echo "WAR deployed successfully!"
