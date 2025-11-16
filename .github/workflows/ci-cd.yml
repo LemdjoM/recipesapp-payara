@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: self-hosted  # utilise ton runner local
+    runs-on: self-hosted  # ton runner local
     steps:
       - uses: actions/checkout@v4
 
@@ -44,7 +44,15 @@ jobs:
             echo "No WAR file found!"
             exit 1
           fi
-          PAYARA_DEPLOY_DIR=/opt/payara5/glassfish/domains/domain1/autodeploy
+
+          PAYARA_DEPLOY_DIR="/Users/mpg/Documents/UNIL/MSc/SA/Projet/payara6/glassfish/domains/domain1/autodeploy"
+
           echo "Deploying $WAR_FILE to $PAYARA_DEPLOY_DIR"
+
+          if [ ! -d "$PAYARA_DEPLOY_DIR" ]; then
+            echo "Deploy directory does not exist : $PAYARA_DEPLOY_DIR"
+            exit 1
+          fi
+
           cp "$WAR_FILE" "$PAYARA_DEPLOY_DIR/"
           echo "WAR deployed successfully!"
