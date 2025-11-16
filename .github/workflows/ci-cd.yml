@@ -1,4 +1,4 @@
-name: CI/CD Java + Payara
+name: CI/CD Java + Payara (Self-Hosted)
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted   # <-- utilise ton runner local
     steps:
       - uses: actions/checkout@v4
 
@@ -37,7 +37,7 @@ jobs:
       - name: Run tests
         run: mvn test
 
-      - name: Upload WAR
+      - name: Upload WAR (optional, local runner can skip this)
         if: success()
         uses: actions/upload-artifact@v4
         with:
@@ -45,36 +45,21 @@ jobs:
           path: RecipesAppWeb/target/RecipesAppWeb-*.war
 
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: build-and-test
     if: github.ref == 'refs/heads/main'
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download WAR artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: RecipesAppWeb-WAR
-          path: ./RecipesAppWeb/target
-
-      - name: Setup SSH Agent
-        uses: webfactory/ssh-agent@v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
-
-      - name: Deploy WAR to Payara
-        env:
-          SSH_USER: ${{ secrets.SSH_USER }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          PAYARA_DEPLOY_DIR: /opt/payara5/glassfish/domains/domain1/autodeploy
+      - name: Deploy WAR locally to Payara
         run: |
           WAR_FILE=$(ls RecipesAppWeb/target/*.war | head -n 1)
           if [ -z "$WAR_FILE" ]; then
             echo "No WAR file found!"
             exit 1
           fi
-          echo "Deploying $WAR_FILE to $SSH_USER@$SSH_HOST:$PAYARA_DEPLOY_DIR"
-          scp "$WAR_FILE" "$SSH_USER@$SSH_HOST:$PAYARA_DEPLOY_DIR/"
+          PAYARA_DEPLOY_DIR="/opt/payara5/glassfish/domains/domain1/autodeploy"
+          echo "Deploying $WAR_FILE to $PAYARA_DEPLOY_DIR"
+          cp "$WAR_FILE" "$PAYARA_DEPLOY_DIR/"
           echo "WAR deployed successfully!"
-
