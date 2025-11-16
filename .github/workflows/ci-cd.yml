@@ -54,7 +54,7 @@ jobs:
 
       - name: Deploy WAR locally to Payara
         run: |
-          WAR_FILE=$(ls RecipesAppWeb/target/*.war | head -n 1)
+          WAR_FILE=$(find RecipesAppWeb/target -name "*.war" | head -n 1)
           if [ -z "$WAR_FILE" ]; then
             echo "No WAR file found!"
             exit 1
